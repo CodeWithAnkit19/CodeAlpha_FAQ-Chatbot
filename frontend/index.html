@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>College FAQ Chatbot</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="chatbot-container">
+
+        <!-- Header -->
+        <header class="chat-header">
+            <div class="bot-icon">🤖</div>
+
+            <div>
+                <h1>College FAQ Chatbot</h1>
+                <p>Ask your questions and get instant answers</p>
+            </div>
+        </header>
+
+
+        <!-- Chat Area -->
+        <main class="chat-area" id="chatArea">
+
+            <!-- Welcome Message -->
+            <div class="message bot-message">
+                <div class="message-icon">🤖</div>
+
+                <div class="message-content">
+                    <p>
+                        Hello! 👋 Welcome to the College FAQ Chatbot.
+                    </p>
+
+                    <p>
+                        You can ask me questions about admission, fees,
+                        courses, examinations, attendance and other
+                        college-related information.
+                    </p>
+                </div>
+            </div>
+
+        </main>
+
+
+        <!-- Suggested Questions -->
+        <section class="suggested-section">
+
+            <p class="suggested-title">Suggested Questions</p>
+
+            <div class="suggested-questions">
+
+                <button type="button" class="suggestion-button">
+                    What courses are available?
+                </button>
+
+                <button type="button" class="suggestion-button">
+                    How can I pay my fees?
+                </button>
+
+                <button type="button" class="suggestion-button">
+                    What documents are required for admission?
+                </button>
+
+                <button type="button" class="suggestion-button">
+                    How can I check my exam schedule?
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- Input Area -->
+        <footer class="chat-input-area">
+
+            <input
+                type="text"
+                id="userInput"
+                placeholder="Type your question here..."
+                autocomplete="off"
+            >
+
+            <button
+                type="button"
+                id="sendButton">
+                Send
+            </button>
+
+        </footer>
+
+    </div>
+
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>
