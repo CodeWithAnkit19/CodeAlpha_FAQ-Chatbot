@@ -1,4 +1,3 @@
-
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from rapidfuzz import fuzz, process
@@ -182,6 +181,13 @@ def normalize_text(text):
     text = re.sub(r"\s+", " ", text)
     return text
 
+def fallback_answer():
+    return (
+        "Sorry, I couldn't confidently match that question. "
+        "Try asking about admissions, fees, scholarships, attendance, "
+        "exams, results, library, placements, hostel, or student services."
+    )
+
 
 def find_best_answer(user_question):
     question = normalize_text(user_question)
@@ -190,11 +196,28 @@ def find_best_answer(user_question):
         return "Please enter a question so I can help you."
 
     # Handle greetings and thanks separately.
-    if question in ["hi", "hello", "hey", "good morning", "good afternoon"]:
+    if question in [
+        "hi", "hello", "hey", "good morning", "good afternoon"
+    ]:
         return "Hello! Welcome to the College FAQ Chatbot. How can I help you?"
 
     if question in ["thanks", "thank you", "thank you so much"]:
         return "You're welcome! Feel free to ask another college-related question."
+
+    # Check whether the question is related to college topics.
+    college_keywords = [
+        "college", "university", "admission", "admissions",
+        "apply", "application", "eligibility", "fee", "fees",
+        "scholarship", "attendance", "exam", "exams", "result",
+        "results", "library", "placement", "placements", "hostel",
+        "student", "students", "course", "courses", "program",
+        "programs", "department", "faculty", "teacher", "timetable",
+        "schedule", "semester", "syllabus", "subject", "transport",
+        "canteen", "campus", "certificate", "documents", "internship"
+    ]
+
+    if not any(keyword in question for keyword in college_keywords):
+        return fallback_answer()
 
     choices = {
         item["text"]: item["faq_index"]
@@ -212,8 +235,22 @@ def find_best_answer(user_question):
 
     matched_text, score, _ = match
 
-    # Also compare important words for partially similar questions.
-    if score < 48:
+    # Reject matches that only share common words such as "what", "is", or "the".
+    stop_words = {
+        "a", "an", "the", "is", "are", "was", "were", "what", "when",
+        "where", "who", "why", "how", "do", "does", "did", "can", "could",
+        "i", "my", "me", "we", "our", "you", "your", "please", "for",
+        "to", "of", "in", "on", "at", "and", "or", "about", "there",
+        "it", "this", "that", "will", "be", "get", "have", "has"
+    }
+    question_words = set(question.split()) - stop_words
+    matched_words = set(normalize_text(matched_text).split()) - stop_words
+
+    if not question_words.intersection(matched_words):
+        return fallback_answer()
+
+    # Try a secondary comparison for partially similar questions.
+    if score < 65:
         partial_match = process.extractOne(
             question,
             list(choices.keys()),
@@ -223,21 +260,12 @@ def find_best_answer(user_question):
         if partial_match and partial_match[1] > score:
             matched_text, score, _ = partial_match
 
-    if score < 55:
+    # Use a stricter minimum matching score.
+    if score < 65:
         return fallback_answer()
 
     faq_index = choices[matched_text]
     return faq_data[faq_index]["answer"]
-
-
-def fallback_answer():
-    return (
-        "Sorry, I couldn't confidently match that question. "
-        "Try asking about admissions, fees, scholarships, attendance, "
-        "exams, results, library, placements, hostel, or student services."
-    )
-
-
 @app.route("/", methods=["GET"])
 def home():
     return jsonify({
